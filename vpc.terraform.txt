@@ -101,3 +101,59 @@ resource "aws_route_table_association" "private_association" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+
+
+
+
+
+# aws s3 buket creation from terraform (new file created)
+
+
+
+
+
+
+
+# Specify the provider
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+}
+
+# Create an S3 bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket        = "my-example-bucket-12345" # Replace with a unique bucket name
+  acl           = "private"                # Access control (e.g., private, public-read)
+
+  tags = {
+    Name        = "Example S3 Bucket"
+    Environment = "Dev"
+  }
+}
+
+# Optional: Enable versioning for the bucket
+resource "aws_s3_bucket_versioning" "example" {
+  bucket = aws_s3_bucket.example_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Optional: Add a bucket policy (for fine-grained access control)
+resource "aws_s3_bucket_policy" "example_policy" {
+  bucket = aws_s3_bucket.example_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.example_bucket.arn}/*"
+        Principal = {
+          AWS = "*"
+        }
+      }
+    ]
+  })
+}
